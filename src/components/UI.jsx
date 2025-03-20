@@ -1,9 +1,20 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { useChat } from "../hooks/useChat";
+import { Mic, MicOff, ZoomIn, ZoomOut, Camera, Send } from "lucide-react";
 
 export const UI = ({ hidden, ...props }) => {
   const input = useRef();
   const { chat, loading, cameraZoomed, setCameraZoomed, message } = useChat();
+  const [isRecording, setIsRecording] = useState(false);
+  const companyLogo = "https://poetsandquants.com/wp-content/uploads/sites/5/2014/07/Deloitte-logo.jpg"
+  const employeeName = "John Doe"
+  
+  // Function to toggle microphone state
+  const speakWithMic = () => {
+    setIsRecording(!isRecording);
+    // Here you would add actual speech recognition functionality
+    // For example, using the Web Speech API
+  };
 
   const sendMessage = () => {
     const text = input.current.value;
@@ -12,6 +23,7 @@ export const UI = ({ hidden, ...props }) => {
       input.current.value = "";
     }
   };
+
   if (hidden) {
     return null;
   }
@@ -19,46 +31,28 @@ export const UI = ({ hidden, ...props }) => {
   return (
     <>
       <div className="fixed top-0 left-0 right-0 bottom-0 z-10 flex justify-between p-4 flex-col pointer-events-none">
-        <div className="self-start backdrop-blur-md bg-white bg-opacity-50 p-4 rounded-lg">
-          <h1 className="font-black text-xl">My Virtual GF</h1>
-          <p>I will always love you ❤️</p>
+        {/* Smaller header with company logo and employee name */}
+        <div className="w-full flex justify-between items-center backdrop-blur-md bg-white bg-opacity-50 p-2 rounded-lg">
+          <div className="flex items-center">
+            <img
+              src={companyLogo || "/api/placeholder/120/60"}
+              alt="Logo"
+              className="h-8 mr-2"
+            />
+            <h1 className="font-bold text-base md:text-lg">Virtual Assistant</h1>
+          </div>
+          <div className="bg-blue-100 px-3 py-1 rounded-full text-sm">
+            <span className="font-medium">Hi {employeeName || "Employee"}</span>
+          </div>
         </div>
-        <div className="w-full flex flex-col items-end justify-center gap-4">
+        
+        {/* Camera controls */}
+        <div className="w-full flex flex-col items-end justify-center gap-2">
           <button
             onClick={() => setCameraZoomed(!cameraZoomed)}
-            className="pointer-events-auto bg-pink-500 hover:bg-pink-600 text-white p-4 rounded-md"
+            className="pointer-events-auto bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md shadow-md transition duration-200"
           >
-            {cameraZoomed ? (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM13.5 10.5h-6"
-                />
-              </svg>
-            ) : (
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.5}
-                stroke="currentColor"
-                className="w-6 h-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607zM10.5 7.5v6m3-3h-6"
-                />
-              </svg>
-            )}
+            {cameraZoomed ? <ZoomOut size={20} /> : <ZoomIn size={20} />}
           </button>
           <button
             onClick={() => {
@@ -69,27 +63,17 @@ export const UI = ({ hidden, ...props }) => {
                 body.classList.add("greenScreen");
               }
             }}
-            className="pointer-events-auto bg-pink-500 hover:bg-pink-600 text-white p-4 rounded-md"
+            className="pointer-events-auto bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md shadow-md transition duration-200"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-6 h-6"
-            >
-              <path
-                strokeLinecap="round"
-                d="M15.75 10.5l4.72-4.72a.75.75 0 011.28.53v11.38a.75.75 0 01-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 002.25-2.25v-9a2.25 2.25 0 00-2.25-2.25h-9A2.25 2.25 0 002.25 7.5v9a2.25 2.25 0 002.25 2.25z"
-              />
-            </svg>
+            <Camera size={20} />
           </button>
         </div>
-        <div className="flex items-center gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
+        
+        {/* Chat input area with improved icons alignment */}
+        <div className="flex items-stretch gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
           <input
-            className="w-full placeholder:text-gray-800 placeholder:italic p-4 rounded-md bg-opacity-50 bg-white backdrop-blur-md"
-            placeholder="Type a message..."
+            className="w-full p-3 rounded-l-md bg-opacity-70 bg-white backdrop-blur-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Type your message..."
             ref={input}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
@@ -98,13 +82,21 @@ export const UI = ({ hidden, ...props }) => {
             }}
           />
           <button
+            onClick={speakWithMic}
+            className={`flex items-center justify-center px-3 ${
+              isRecording ? 'bg-red-500 hover:bg-red-600' : 'bg-blue-600 hover:bg-blue-700'
+            } text-white rounded-md transition duration-200`}
+          >
+            {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+          </button>
+          <button
             disabled={loading || message}
             onClick={sendMessage}
-            className={`bg-pink-500 hover:bg-pink-600 text-white p-4 px-10 font-semibold uppercase rounded-md ${
-              loading || message ? "cursor-not-allowed opacity-30" : ""
+            className={`flex items-center justify-center px-4 bg-blue-600 hover:bg-blue-700 text-white rounded-r-md transition duration-200 ${
+              loading || message ? "cursor-not-allowed opacity-50" : ""
             }`}
           >
-            Send
+            <Send size={20} />
           </button>
         </div>
       </div>

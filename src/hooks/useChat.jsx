@@ -5,7 +5,13 @@ const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
+  const [messages, setMessages] = useState([]);
+  const [message, setMessage] = useState();
+  const [loading, setLoading] = useState(false);
+  const [cameraZoomed, setCameraZoomed] = useState(true);
+
   const chat = async (message) => {
+    console.log("chat funtion clicked");
     setLoading(true);
     const data = await fetch(`${backendUrl}/chat`, {
       method: "POST",
@@ -15,13 +21,11 @@ export const ChatProvider = ({ children }) => {
       body: JSON.stringify({ message }),
     });
     const resp = (await data.json()).messages;
+    console.log("response", resp);
     setMessages((messages) => [...messages, ...resp]);
     setLoading(false);
   };
-  const [messages, setMessages] = useState([]);
-  const [message, setMessage] = useState();
-  const [loading, setLoading] = useState(false);
-  const [cameraZoomed, setCameraZoomed] = useState(true);
+
   const onMessagePlayed = () => {
     setMessages((messages) => messages.slice(1));
   };
