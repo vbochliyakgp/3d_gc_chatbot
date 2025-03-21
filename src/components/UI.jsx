@@ -10,7 +10,7 @@ import {
   Loader,
 } from "lucide-react";
 
-export const UI = ({ hidden, ...props }) => {
+export const UI = ({ hidden }) => {
   const input = useRef();
   const {
     chat,
@@ -18,16 +18,13 @@ export const UI = ({ hidden, ...props }) => {
     cameraZoomed,
     setCameraZoomed,
     message,
-    setMessages,
-    setLoading,
+    audioChat,
+    need_data_for_ui,
   } = useChat();
   const [isRecording, setIsRecording] = useState(false);
   const [audioBlob, setAudioBlob] = useState(null);
   const [audioRecording, setAudioRecording] = useState(null);
   const [processingAudio, setProcessingAudio] = useState(false);
-  const companyLogo =
-    "https://poetsandquants.com/wp-content/uploads/sites/5/2014/07/Deloitte-logo.jpg";
-  const employeeName = "John Doe";
 
   // MediaRecorder reference
   const mediaRecorderRef = useRef(null);
@@ -99,24 +96,9 @@ export const UI = ({ hidden, ...props }) => {
     if (!audioBlob) return;
 
     setProcessingAudio(true);
-    setLoading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("audio", audioBlob, "recording.wav");
-
-      const response = await fetch("http://localhost:3000/chat/audio", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error(`Server responded with ${response.status}`);
-      }
-      console.log("response here in josn", response);
-      const data = (await response.json()).messages;
-      console.log("response", data);
-      setMessages((messages) => [...messages, ...data]);
+      await audioChat(audioBlob);
 
       // Clear audio recording after sending
       URL.revokeObjectURL(audioRecording);
@@ -124,11 +106,7 @@ export const UI = ({ hidden, ...props }) => {
       setAudioBlob(null);
     } catch (error) {
       console.error("Error sending audio:", error);
-      alert(
-        "Failed to process audio. Please try again or type your message instead."
-      );
     } finally {
-      setLoading(false);
       setProcessingAudio(false);
     }
   };
@@ -168,8 +146,8 @@ export const UI = ({ hidden, ...props }) => {
         <div className="w-full flex justify-between items-center backdrop-blur-md bg-white bg-opacity-50 p-2 rounded-lg">
           <div className="flex items-center">
             <img
-              src={companyLogo || "/api/placeholder/120/60"}
-              alt="Logo"
+              src={need_data_for_ui.companyLogo}
+              alt="Deloitte."
               className="h-8 mr-2"
             />
             <h1 className="font-bold text-base md:text-lg">
@@ -177,7 +155,9 @@ export const UI = ({ hidden, ...props }) => {
             </h1>
           </div>
           <div className="bg-blue-100 px-3 py-1 rounded-full text-sm">
-            <span className="font-medium">Hi {employeeName || "Employee"}</span>
+            <span className="font-medium">
+              Hi {need_data_for_ui.employeeName || "There"}
+            </span>
           </div>
         </div>
 

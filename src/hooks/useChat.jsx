@@ -4,6 +4,12 @@ const backendUrl = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const ChatContext = createContext();
 
+const need_data_for_ui = {
+  companyLogo:
+    "https://poetsandquants.com/wp-content/uploads/sites/5/2014/07/Deloitte-logo.jpg",
+  employeeName: "John Doe",
+};
+
 export const ChatProvider = ({ children }) => {
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState();
@@ -22,6 +28,20 @@ export const ChatProvider = ({ children }) => {
     });
     const resp = (await data.json()).messages;
     console.log("response", resp);
+    setMessages((messages) => [...messages, ...resp]);
+    setLoading(false);
+  };
+
+  const audioChat = async (audioBlob) => {
+    setLoading(true);
+    const formData = new FormData();
+    formData.append("audio", audioBlob, "recording.wav");
+
+    const data = await fetch(`${backendUrl}/chat/audio`, {
+      method: "POST",
+      body: formData,
+    });
+    const resp = (await data.json()).messages;
     setMessages((messages) => [...messages, ...resp]);
     setLoading(false);
   };
@@ -47,8 +67,8 @@ export const ChatProvider = ({ children }) => {
         loading,
         cameraZoomed,
         setCameraZoomed,
-        setMessages,
-        setLoading
+        audioChat,
+        need_data_for_ui,
       }}
     >
       {children}
