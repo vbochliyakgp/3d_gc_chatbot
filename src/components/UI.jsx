@@ -27,7 +27,7 @@ export const UI = ({ hidden }) => {
   const [audioBlob, setAudioBlob] = useState(null);
   const [audioRecording, setAudioRecording] = useState(null);
   const [processingAudio, setProcessingAudio] = useState(false);
-
+  const [audiodelete, setAudioDelete] = useState(false);
   // MediaRecorder reference
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
@@ -70,7 +70,6 @@ export const UI = ({ hidden }) => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
-
       // Stop all audio tracks
       mediaRecorderRef.current.stream
         .getTracks()
@@ -141,6 +140,23 @@ export const UI = ({ hidden }) => {
     return null;
   }
 
+  useEffect(() => {
+    if (!isRecording && audioBlob && !audiodelete) {
+      sendMessage();
+    }
+  }, [isRecording, audioBlob, audiodelete]);
+
+  useEffect(() => {
+    if (audiodelete && audioRecording) {
+      
+      URL.revokeObjectURL(audioRecording);
+      setAudioRecording(null);
+      setAudioBlob(null);
+      
+
+      setAudioDelete(false);
+    }
+  }, [audiodelete, audioRecording]);
   return (
     <>
       <div className="fixed top-0 left-0 right-0 bottom-0 z-10 flex justify-between p-4 flex-col pointer-events-none">
@@ -187,12 +203,10 @@ export const UI = ({ hidden }) => {
         </div>
 
         {/* Audio recording indicator */}
-        
-          <div className="pointer-events-auto max-w-screen-sm w-full mx-auto mb-2 bg-transparent-100 p-2 rounded-md flex items-center justify-center">
-          {isRecording&&<AudioVisualizer/>}
-          </div>
-        
-        
+
+        <div className="pointer-events-auto max-w-screen-sm w-full mx-auto mb-2 bg-transparent-100 p-2 rounded-md flex items-center justify-center">
+          {isRecording && <AudioVisualizer />}
+        </div>
 
         {/* Chat input area with improved icons alignment */}
         <div className="flex items-stretch gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
@@ -211,7 +225,7 @@ export const UI = ({ hidden }) => {
               }
             }}
           />
-          {!(audioRecording && !isRecording) && (
+          {!isRecording && (
             <button
               onClick={toggleRecording}
               disabled={loading || message || processingAudio}
@@ -225,15 +239,14 @@ export const UI = ({ hidden }) => {
                   : ""
               }`}
             >
-              {isRecording ? <MicOff size={20} /> : <Mic size={20} />}
+              {<Mic size={20} />}
             </button>
           )}
-          {audioRecording && !isRecording && (
+          {!audioRecording && isRecording && (
             <button
               onClick={() => {
-                URL.revokeObjectURL(audioRecording);
-                setAudioRecording(null);
-                setAudioBlob(null);
+                stopRecording();
+                setAudioDelete(true);
               }}
               className={`flex items-center justify-center px-3 ${"bg-red-600 hover:bg-red-700"} text-white rounded-md transition duration-200 `}
             >
@@ -241,22 +254,18 @@ export const UI = ({ hidden }) => {
             </button>
           )}
           <button
-            disabled={
-              loading ||
-              message ||
-              (isRecording && !audioBlob) ||
-              processingAudio
-            }
-            onClick={sendMessage}
+            disabled={loading || message || processingAudio}
+            onClick={() => {
+              if (isRecording) {
+                stopRecording();
+              } else sendMessage();
+            }}
             className={`flex items-center justify-center px-4 ${
               loading || processingAudio
                 ? "bg-gray-500"
                 : "bg-blue-600 hover:bg-blue-700"
             } text-white rounded-r-md transition duration-200 ${
-              loading ||
-              message ||
-              (isRecording && !audioBlob) ||
-              processingAudio
+              loading || message || processingAudio
                 ? "cursor-not-allowed opacity-50"
                 : ""
             }`}

@@ -33,6 +33,7 @@ export const ChatProvider = ({ children }) => {
   };
 
   const audioChat = async (audioBlob) => {
+    console.log("audio chat");
     setLoading(true);
     const formData = new FormData();
     formData.append("audio", audioBlob, "recording.wav");
