@@ -148,17 +148,30 @@ export const UI = ({ hidden }) => {
 
   useEffect(() => {
     if (audiodelete && audioRecording) {
-      
       URL.revokeObjectURL(audioRecording);
       setAudioRecording(null);
       setAudioBlob(null);
-      
 
       setAudioDelete(false);
     }
   }, [audiodelete, audioRecording]);
   return (
     <>
+      {isRecording && (
+        <div
+          style={{
+            width: "100vw",
+            height: "100vh",
+            position: "absolute",
+            margin:"0%",
+            padding:"0%",
+            top: 0,
+            left: 0,
+            zIndex: 10,
+            backgroundColor: "rgba(0,0,0,0.2)", // Combined color and opacity
+          }}
+        />
+      )}
       <div className="fixed top-0 left-0 right-0 bottom-0 z-10 flex justify-between p-4 flex-col pointer-events-none">
         {/* Smaller header with company logo and employee name */}
         <div className="w-full flex justify-between items-center backdrop-blur-md bg-white bg-opacity-50 p-2 rounded-lg">
@@ -239,7 +252,7 @@ export const UI = ({ hidden }) => {
                   : ""
               }`}
             >
-              {<Mic size={20} />}
+              {<Mic size={20}/>}
             </button>
           )}
           {!audioRecording && isRecording && (

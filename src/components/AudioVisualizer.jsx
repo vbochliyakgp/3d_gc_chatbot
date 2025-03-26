@@ -20,7 +20,9 @@ export default function AudioVisualizer() {
       const source = audioContextRef.current.createMediaStreamSource(stream);
 
       source.connect(analyserRef.current);
-      analyserRef.current.fftSize = 256;
+      analyserRef.current.fftSize = 128;
+      analyserRef.current.minDecibels = -90;
+      analyserRef.current.maxDecibels = -10;
 
       setIsListening(true);
       animate();
@@ -48,16 +50,17 @@ export default function AudioVisualizer() {
     const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
     analyserRef.current.getByteFrequencyData(dataArray);
 
-    const average =
-      dataArray.reduce((acc, val) => acc + val, 0) / dataArray.length;
+    const sortedData = [...dataArray].sort((a, b) => b - a);
+    const topValues = sortedData.slice(0, 5);
+    const peakValue = Math.max(...topValues);
 
-    const newScale = 1 + (average / 255) * 0.5;
-    const newIntensity = (average / 255) * 100;
-    const opacity = 0.3 + (average / 255) * 0.65;
+    const newScale = 1 + Math.pow(peakValue / 255, 2) * 1;
+    const newIntensity = Math.pow(peakValue / 255, 1.5) * 200;
+    const opacity = 0.05 + Math.pow(peakValue / 255, 1.5) * 0.5;
 
     setScale(newScale);
     setIntensity(newIntensity);
-    setBackgroundColor(`rgba(0, 0, 0, ${opacity * 0.5})`);
+    setBackgroundColor(`rgba(0, 0, 0, ${opacity * 0.1})`);
 
     animationFrameRef.current = requestAnimationFrame(animate);
   };
@@ -79,15 +82,18 @@ export default function AudioVisualizer() {
       onClick={isListening ? stopListening : startListening}
       className="flex items-center justify-center w-64 h-64 rounded-full cursor-pointer transition-all duration-300"
       style={{
+        position:"absolute",
+        zIndex:9,
         height: "100px",
         width: "100px",
         borderRadius: "100%",
-        backgroundColor: backgroundColor,
-        boxShadow: isListening
-          ? `0 0 ${30 + intensity}px rgba(239, 68, 68, ${
-              0.2 + intensity * 0.08
-            })`
-          : "none",
+        background: `radial-gradient(circle, 
+        ${
+          isListening
+            ? `rgba(239, 68, 68, ${0.05 + intensity * 0.002})`
+            : "rgba(75, 85, 99, 0.01)"
+        } 0%,
+        transparent 70%)`,
       }}
     >
       <div
@@ -99,8 +105,8 @@ export default function AudioVisualizer() {
           background: `radial-gradient(circle, 
             ${
               isListening
-                ? `rgba(239, 68, 68, ${0.3 + intensity * 0.007})`
-                : "rgba(75, 85, 99, 0.1)"
+                ? `rgba(239, 68, 68, ${0.05 + intensity * 0.002})`
+                : "rgba(75, 85, 99, 0.01)"
             } 0%,
             transparent 70%)`,
         }}
@@ -108,22 +114,22 @@ export default function AudioVisualizer() {
         <div
           className="absolute inset-0 rounded-full"
           style={{
+            
             borderRadius: "100%",
             background: `radial-gradient(circle, 
               ${
                 isListening
-                  ? `rgba(239, 68, 68, ${0.2 + intensity * 0.004})`
-                  : "rgba(75, 85, 99, 0.05)"
+                  ? `rgba(239, 68, 68, ${0.02 + intensity * 0.001})`
+                  : "rgba(75, 85, 99, 0.005)"
               } 0%,
               transparent 100%)`,
-            animation: isListening ? "pulse 2s infinite" : "none",
+            animation: isListening ? "pulse 1.5s infinite" : "none",
           }}
         />
         <div
-          className={`transition-all duration-100 rounded-full p-6 ${
-            isListening ? "bg-gray-800/50 backdrop-blur-sm" : "bg-transparent"
-          }`}
+          className="transition-all duration-100 rounded-full p-6"
           style={{
+            // backgroundColor:"rgba(239,68,68,0.5)",
             width: "100%",
             height: "100%",
             borderRadius: "100%",
@@ -131,9 +137,10 @@ export default function AudioVisualizer() {
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
+            background: "transparent",
             boxShadow: isListening
-              ? `0 0 ${20 + intensity * 0.5}px rgba(239, 68, 68, ${
-                  0.3 + intensity * 0.007
+              ? `0 0 ${25 + intensity * 0.3}px rgba(239, 68, 68, ${
+                  0.05 + intensity * 0.008
                 })`
               : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
@@ -152,8 +159,8 @@ export default function AudioVisualizer() {
             opacity: 1;
           }
           50% {
-            transform: scale(1.1);
-            opacity: 0.8;
+            transform: scale(1.15);
+            opacity: 0.7;
           }
           100% {
             transform: scale(1);
