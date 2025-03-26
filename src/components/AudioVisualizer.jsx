@@ -99,6 +99,7 @@ export default function AudioVisualizer() {
       <div
         className="relative w-48 h-48 rounded-full flex items-center justify-center"
         style={{
+          // backgroundColor:"blue",
           height: "100%",
           width: "100%",
           borderRadius: "100%",
@@ -114,7 +115,7 @@ export default function AudioVisualizer() {
         <div
           className="absolute inset-0 rounded-full"
           style={{
-            
+            // backgroundColor:"black",
             borderRadius: "100%",
             background: `radial-gradient(circle, 
               ${
@@ -140,7 +141,7 @@ export default function AudioVisualizer() {
             background: "transparent",
             boxShadow: isListening
               ? `0 0 ${25 + intensity * 0.3}px rgba(239, 68, 68, ${
-                  0.05 + intensity * 0.008
+                  0.4 + intensity * 0.008
                 })`
               : "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
           }}
