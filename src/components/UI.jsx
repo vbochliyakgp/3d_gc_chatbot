@@ -9,10 +9,13 @@ import {
   Send,
   Loader,
   Trash2,
+  Pause,
 } from "lucide-react";
 import AudioVisualizer from "./AudioVisualizer";
 
 export const UI = ({ hidden }) => {
+  const transcriptInput=useRef(null);
+  const [savedTranscript, setSavedTranscript] = useState("");
   const input = useRef();
   const {
     chat,
@@ -31,10 +34,39 @@ export const UI = ({ hidden }) => {
   // MediaRecorder reference
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
-
+  const [transcript,setTranscript]=useState("");
   // Function to start recording
   const startRecording = async () => {
     try {
+      const SpeechRecognition=window.SpeechRecognition ||window.webkitSpeechRecognition;
+      const recognition=new SpeechRecognition();
+      recognition.continuous=true;
+      recognition.interimResults=true;
+      recognition.lang= 'en-US';
+      recognition.onresult=(event)=>{
+        let currentTranscript='';
+        for(let i =event.resultIndex;i<event.results.length;i++){
+          currentTranscript=event.results[i][0].transcript;
+        }
+        setTranscript(currentTranscript);
+        if(transcriptInput.current) {
+          // Add a space if needed
+          if(transcriptInput.current.value && !transcriptInput.current.value.endsWith(' ')) {
+            transcriptInput.current.value += ' ';
+          }
+          transcriptInput.current.value += currentTranscript;
+          setSavedTranscript(transcriptInput.current.value);
+        }
+        recognition.onend = () => {
+          // If we're still in recording mode but recognition stopped, restart it
+          if (isRecording) {
+            console.log("Speech recognition paused, restarting...");
+            recognition.start();
+          }
+        };
+      }
+      recognition.start();
+      window.recognition=recognition;
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -67,6 +99,9 @@ export const UI = ({ hidden }) => {
 
   // Function to stop recording
   const stopRecording = () => {
+    if(window.recognition){
+      window.recognition.stop();
+    }
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       setIsRecording(false);
@@ -81,6 +116,7 @@ export const UI = ({ hidden }) => {
   const toggleRecording = () => {
     if (isRecording) {
       stopRecording();
+      
     } else {
       // Reset previous recording if exists
       if (audioRecording) {
@@ -88,6 +124,9 @@ export const UI = ({ hidden }) => {
         setAudioRecording(null);
         setAudioBlob(null);
       }
+      setTranscript("");
+      if(transcriptInput.current)
+      transcriptInput.current.value="";
       startRecording();
     }
   };
@@ -127,6 +166,20 @@ export const UI = ({ hidden }) => {
     }
   };
 
+  useEffect(() => {
+    // When recording stops and we have a saved transcript
+    if (!isRecording && savedTranscript) {
+      // Wait for UI to update
+      const timer = setTimeout(() => {
+        if (input.current) {
+          input.current.value = savedTranscript;
+          console.log("Set input value to:", savedTranscript); // Debug log
+        }
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isRecording, savedTranscript]);
   // Clean up audio resources when component unmounts
   useEffect(() => {
     return () => {
@@ -220,10 +273,10 @@ export const UI = ({ hidden }) => {
         <div className="pointer-events-auto max-w-screen-sm w-full mx-auto mb-2 bg-transparent-100 p-2 rounded-md flex items-center justify-center">
           {isRecording && <AudioVisualizer />}
         </div>
-
         {/* Chat input area with improved icons alignment */}
         <div className="flex items-stretch gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
-          <input
+          
+          {!(isRecording&&transcript)&&<input
             className={`w-full p-3 rounded-l-md bg-opacity-70 bg-white backdrop-blur-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               isRecording ? "opacity-50" : ""
             }`}
@@ -237,7 +290,22 @@ export const UI = ({ hidden }) => {
                 sendMessage();
               }
             }}
+          />}
+          {isRecording&&transcript&&(
+            <input readOnly={true}
+            className={`w-full p-3 rounded-l-md bg-opacity-70 bg-white backdrop-blur-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 
+            `}
+            // placeholder={
+            //   isRecording ? "Recording in progress..." : "Type your message..."
+            // }
+            ref={transcriptInput}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && isRecording) {
+                  console.log("transcript is :",transcriptInput.current.value);
+              }
+            }}
           />
+          )}
           {!isRecording && (
             <button
               onClick={toggleRecording}
@@ -255,7 +323,7 @@ export const UI = ({ hidden }) => {
               {<Mic size={20}/>}
             </button>
           )}
-          {!audioRecording && isRecording && (
+          {/* {!audioRecording && isRecording && (
             <button
               onClick={() => {
                 stopRecording();
@@ -265,7 +333,26 @@ export const UI = ({ hidden }) => {
             >
               <Trash2 size={20} color="white" strokeWidth={2} style={{}} />
             </button>
+          )} */}
+          {isRecording&& (
+            <button
+              onClick={() => {
+
+                
+                stopRecording();
+                setAudioDelete(true);
+                setIsRecording(false);
+                
+      
+               
+              }}
+              className={`flex items-center justify-center px-3 ${"bg-red-600 hover:bg-red-700"} text-white rounded-md transition duration-200 `}
+            >
+              <Pause size={20} color="white" strokeWidth={2} style={{}} />
+            </button>
           )}
+
+          {!isRecording&&(
           <button
             disabled={loading || message || processingAudio}
             onClick={() => {
@@ -288,7 +375,7 @@ export const UI = ({ hidden }) => {
             ) : (
               <Send size={20} />
             )}
-          </button>
+          </button>)}
         </div>
       </div>
     </>
