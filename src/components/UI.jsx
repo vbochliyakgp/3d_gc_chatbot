@@ -14,7 +14,7 @@ import {
 import AudioVisualizer from "./AudioVisualizer";
 
 export const UI = ({ hidden }) => {
-  const transcriptInput=useRef(null);
+  const transcriptInput = useRef(null);
   const [savedTranscript, setSavedTranscript] = useState("");
   const input = useRef();
   const {
@@ -34,25 +34,29 @@ export const UI = ({ hidden }) => {
   // MediaRecorder reference
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
-  const [transcript,setTranscript]=useState("");
+  const [transcript, setTranscript] = useState("");
   // Function to start recording
   const startRecording = async () => {
     try {
-      const SpeechRecognition=window.SpeechRecognition ||window.webkitSpeechRecognition;
-      const recognition=new SpeechRecognition();
-      recognition.continuous=true;
-      recognition.interimResults=true;
-      recognition.lang= 'en-US';
-      recognition.onresult=(event)=>{
-        let currentTranscript='';
-        for(let i =event.resultIndex;i<event.results.length;i++){
-          currentTranscript=event.results[i][0].transcript;
+      const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = "en-US";
+      recognition.onresult = (event) => {
+        let currentTranscript = "";
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          currentTranscript = event.results[i][0].transcript;
         }
         setTranscript(currentTranscript);
-        if(transcriptInput.current) {
+        if (transcriptInput.current) {
           // Add a space if needed
-          if(transcriptInput.current.value && !transcriptInput.current.value.endsWith(' ')) {
-            transcriptInput.current.value += ' ';
+          if (
+            transcriptInput.current.value &&
+            !transcriptInput.current.value.endsWith(" ")
+          ) {
+            transcriptInput.current.value += " ";
           }
           transcriptInput.current.value += currentTranscript;
           setSavedTranscript(transcriptInput.current.value);
@@ -64,9 +68,9 @@ export const UI = ({ hidden }) => {
             recognition.start();
           }
         };
-      }
+      };
       recognition.start();
-      window.recognition=recognition;
+      window.recognition = recognition;
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
@@ -99,7 +103,7 @@ export const UI = ({ hidden }) => {
 
   // Function to stop recording
   const stopRecording = () => {
-    if(window.recognition){
+    if (window.recognition) {
       window.recognition.stop();
     }
     if (mediaRecorderRef.current && isRecording) {
@@ -116,7 +120,6 @@ export const UI = ({ hidden }) => {
   const toggleRecording = () => {
     if (isRecording) {
       stopRecording();
-      
     } else {
       // Reset previous recording if exists
       if (audioRecording) {
@@ -125,8 +128,7 @@ export const UI = ({ hidden }) => {
         setAudioBlob(null);
       }
       setTranscript("");
-      if(transcriptInput.current)
-      transcriptInput.current.value="";
+      if (transcriptInput.current) transcriptInput.current.value = "";
       startRecording();
     }
   };
@@ -176,7 +178,7 @@ export const UI = ({ hidden }) => {
           console.log("Set input value to:", savedTranscript); // Debug log
         }
       }, 500);
-      
+
       return () => clearTimeout(timer);
     }
   }, [isRecording, savedTranscript]);
@@ -216,8 +218,8 @@ export const UI = ({ hidden }) => {
             width: "100vw",
             height: "100vh",
             position: "absolute",
-            margin:"0%",
-            padding:"0%",
+            margin: "0%",
+            padding: "0%",
             top: 0,
             left: 0,
             zIndex: 10,
@@ -229,31 +231,31 @@ export const UI = ({ hidden }) => {
         {/* Smaller header with company logo and employee name */}
         <div className="w-full flex justify-between items-center backdrop-blur-md bg-white bg-opacity-50 p-2 rounded-lg">
           <div className="flex items-center">
-            <img
+            {/* <img
               src={need_data_for_ui.companyLogo}
               alt="Deloitte."
               className="h-8 mr-2"
-            />
-            <h1 className="font-bold text-base md:text-lg">
+            /> */}
+            {/* <h1 className="font-bold text-base md:text-lg">
               Virtual Assistant
-            </h1>
+            </h1> */}
           </div>
-          <div className="bg-blue-100 px-3 py-1 rounded-full text-sm">
+          {/* <div className="bg-blue-100 px-3 py-1 rounded-full text-sm">
             <span className="font-medium">
               Hi {need_data_for_ui.employeeName || "There"}
             </span>
-          </div>
+          </div> */}
         </div>
 
         {/* Camera controls */}
         <div className="w-full flex flex-col items-end justify-center gap-2">
-          <button
+          {/* <button
             onClick={() => setCameraZoomed(!cameraZoomed)}
             className="pointer-events-auto bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md shadow-md transition duration-200"
           >
             {cameraZoomed ? <ZoomOut size={20} /> : <ZoomIn size={20} />}
-          </button>
-          <button
+          </button> */}
+          {/* <button
             onClick={() => {
               const body = document.querySelector("body");
               if (body.classList.contains("greenScreen")) {
@@ -265,7 +267,7 @@ export const UI = ({ hidden }) => {
             className="pointer-events-auto bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-md shadow-md transition duration-200"
           >
             <Camera size={20} />
-          </button>
+          </button> */}
         </div>
 
         {/* Audio recording indicator */}
@@ -275,54 +277,58 @@ export const UI = ({ hidden }) => {
         </div>
         {/* Chat input area with improved icons alignment */}
         <div className="flex items-stretch gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
-          
-          {!(isRecording&&transcript)&&<input
-            className={`w-full p-3 rounded-l-md bg-opacity-70 bg-white backdrop-blur-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-              isRecording ? "opacity-50" : ""
-            }`}
-            placeholder={
-              isRecording ? "Recording in progress..." : "Type your message..."
-            }
-            ref={input}
-            disabled={isRecording || processingAudio}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !isRecording && !processingAudio) {
-                sendMessage();
+          {!(isRecording && transcript) && (
+            <input
+              className={`w-full p-3 rounded-l-md bg-gray-800 bg-opacity-90 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                isRecording ? "opacity-50" : ""
+              }`}
+              placeholder={
+                isRecording
+                  ? "Recording in progress..."
+                  : "Type your message..."
               }
-            }}
-          />}
-          {isRecording&&transcript&&(
-            <input readOnly={true}
-            className={`w-full p-3 rounded-l-md bg-opacity-70 bg-white backdrop-blur-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 
-            `}
-            // placeholder={
-            //   isRecording ? "Recording in progress..." : "Type your message..."
-            // }
-            ref={transcriptInput}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && isRecording) {
-                  console.log("transcript is :",transcriptInput.current.value);
-              }
-            }}
-          />
+              ref={input}
+              disabled={isRecording || processingAudio}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !isRecording && !processingAudio) {
+                  sendMessage();
+                }
+              }}
+            />
+          )}
+          {isRecording && transcript && (
+            <input
+              readOnly={true}
+              className={`w-full p-3 rounded-l-md bg-opacity-70 bg-gray-800 backdrop-blur-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 
+              `}
+              // placeholder={
+              //   isRecording ? "Recording in progress..." : "Type your message..."
+              // }
+              ref={transcriptInput}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && isRecording) {
+                  console.log("transcript is :", transcriptInput.current.value);
+                }
+              }}
+            />
           )}
           {!isRecording && (
-            <button
-              onClick={toggleRecording}
-              disabled={loading || message || processingAudio}
-              className={`flex items-center justify-center px-3 ${
-                isRecording
-                  ? "bg-red-500 hover:bg-red-600"
-                  : "bg-blue-600 hover:bg-blue-700"
-              } text-white rounded-md transition duration-200 ${
-                loading || message || processingAudio
-                  ? "cursor-not-allowed opacity-50"
-                  : ""
-              }`}
-            >
-              {<Mic size={20}/>}
-            </button>
-          )}
+     <button
+       onClick={toggleRecording}
+       disabled={loading || message || processingAudio}
+       className={`flex items-center justify-center px-3 
+         bg-blue-600 hover:bg-blue-500 
+         text-white rounded-md shadow-lg 
+         border border-blue-500 
+         transform hover:scale-105 transition-all duration-200 ${
+         loading || message || processingAudio
+           ? "cursor-not-allowed opacity-50"
+           : ""
+       }`}
+     >
+       {<Mic size={20}/>}
+     </button>
+   )}
           {/* {!audioRecording && isRecording && (
             <button
               onClick={() => {
@@ -334,48 +340,49 @@ export const UI = ({ hidden }) => {
               <Trash2 size={20} color="white" strokeWidth={2} style={{}} />
             </button>
           )} */}
-          {isRecording&& (
-            <button
-              onClick={() => {
+           {isRecording && (
+     <button
+       onClick={() => {
+         stopRecording();
+         setAudioDelete(true);
+         setIsRecording(false);
+       }}
+       className={`flex items-center justify-center px-3 
+         bg-red-600 hover:bg-red-500 
+         text-white rounded-md shadow-lg 
+         border border-red-500 
+         transform hover:scale-105 transition-all duration-200`}
+     >
+       <Pause size={20} color="white" strokeWidth={2} style={{}} />
+     </button>
+   )}
 
-                
-                stopRecording();
-                setAudioDelete(true);
-                setIsRecording(false);
-                
-      
-               
-              }}
-              className={`flex items-center justify-center px-3 ${"bg-red-600 hover:bg-red-700"} text-white rounded-md transition duration-200 `}
-            >
-              <Pause size={20} color="white" strokeWidth={2} style={{}} />
-            </button>
-          )}
-
-          {!isRecording&&(
-          <button
-            disabled={loading || message || processingAudio}
-            onClick={() => {
-              if (isRecording) {
-                stopRecording();
-              } else sendMessage();
-            }}
-            className={`flex items-center justify-center px-4 ${
-              loading || processingAudio
-                ? "bg-gray-500"
-                : "bg-blue-600 hover:bg-blue-700"
-            } text-white rounded-r-md transition duration-200 ${
-              loading || message || processingAudio
-                ? "cursor-not-allowed opacity-50"
-                : ""
-            }`}
-          >
-            {processingAudio ? (
-              <Loader size={20} className="animate-spin" />
-            ) : (
-              <Send size={20} />
-            )}
-          </button>)}
+{!isRecording && (
+     <button
+       disabled={loading || message || processingAudio}
+       onClick={() => {
+         if (isRecording) {
+           stopRecording();
+         } else sendMessage();
+       }}
+       className={`flex items-center justify-center px-4 ${
+         loading || processingAudio
+           ? "bg-gray-600 border-gray-500"
+           : "bg-blue-600 hover:bg-blue-500 border border-blue-500"
+       } text-white rounded-r-md shadow-lg 
+         transform hover:scale-105 transition-all duration-200 ${
+         loading || message || processingAudio
+           ? "cursor-not-allowed opacity-50"
+           : ""
+       }`}
+     >
+       {processingAudio ? (
+         <Loader size={20} className="animate-spin" />
+       ) : (
+         <Send size={20} />
+       )}
+     </button>
+   )}
         </div>
       </div>
     </>

@@ -5,7 +5,7 @@ import { Experience } from "./components/Experience";
 import { UI } from "./components/UI";
 import { useAuth } from "./hooks/useAuth";
 import { useState } from "react";
-
+import { Navbar } from "./components/Navbar";
 const LoginForm = () => {
   const [employeeId, setEmployeeId] = useState("");
   const [password, setPassword] = useState("");
@@ -34,8 +34,8 @@ const LoginForm = () => {
   };
   
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="max-w-md w-full p-6 bg-white rounded-lg shadow-lg">
+    <div className="min-h-screen flex items-center justify-center bg-gray-900">
+      <div className="max-w-md w-full p-6 bg-gray-800 rounded-lg shadow-lg">
         <div className="flex justify-center mb-8">
           <img 
             src="https://poetsandquants.com/wp-content/uploads/sites/5/2014/07/Deloitte-logo.jpg" 
@@ -43,25 +43,25 @@ const LoginForm = () => {
             className="h-16" 
           />
         </div>
-        <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
+        <h2 className="text-2xl font-bold text-center text-white mb-4">
           Login to 3D Chat Assistant
         </h2>
         
         {error && (
-          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+          <div className="mb-4 p-3 bg-red-900 bg-opacity-50 text-red-200 rounded-md">
             {error}
           </div>
         )}
         
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="employeeId">
+            <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="employeeId">
               Employee ID
             </label>
             <input
               id="employeeId"
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your employee ID"
               value={employeeId}
               onChange={(e) => setEmployeeId(e.target.value)}
@@ -70,13 +70,13 @@ const LoginForm = () => {
           </div>
           
           <div className="mb-6">
-            <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+            <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor="password">
               Password
             </label>
             <input
               id="password"
               type="password"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-600 bg-gray-700 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Enter your password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -107,8 +107,8 @@ const LoginForm = () => {
 
 function App() {
 
-  const { isAuthenticated, logout, user } = useAuth();
-  
+  const { isAuthenticated, logout } = useAuth();
+  // console.log(user);
   if (!isAuthenticated) {
     return <LoginForm />;
   }
@@ -116,7 +116,7 @@ function App() {
     <>
       <Loader />
       <Leva hidden />
-      <div className="fixed top-4 right-4 z-50 flex" style={{display:"flex",alignItems:"center",justifyContent:"center",marginTop:"9px"}}>
+      {/* <div className="fixed top-4 right-4 z-50 flex" style={{display:"flex",alignItems:"center",justifyContent:"center",marginTop:"9px"}}>
         <div className="bg-white bg-opacity-80 p-2 rounded-md shadow-md mb-2 text-center" style={{height:"30px"}}>
           <span className="block text-sm font-medium text-gray-700">
             {user?.employeeId || "User"}
@@ -129,7 +129,8 @@ function App() {
         >
           Logout
         </button>
-      </div>
+      </div> */}
+      <Navbar logout={logout} />
       <UI />
       <Canvas shadows camera={{ position: [0, 0, 1], fov: 30 }}>
         <Experience />
