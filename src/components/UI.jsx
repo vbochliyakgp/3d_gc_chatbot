@@ -14,6 +14,9 @@ import {
 import AudioVisualizer from "./AudioVisualizer";
 
 export const UI = ({ hidden }) => {
+  // Define the ref at the top of your component:
+const finalTranscriptRef = useRef("");
+
   const transcriptInput = useRef(null);
   const [savedTranscript, setSavedTranscript] = useState("");
   const input = useRef();
@@ -43,24 +46,31 @@ export const UI = ({ hidden }) => {
       const recognition = new SpeechRecognition();
       recognition.continuous = true;
       recognition.interimResults = true;
-      recognition.lang = "en-US";
+      recognition.lang = "en-IN";
+
       recognition.onresult = (event) => {
         let currentTranscript = "";
+        let interimTranscript="";
+
         for (let i = event.resultIndex; i < event.results.length; i++) {
           currentTranscript = event.results[i][0].transcript;
+          const result=event.results[i];
+          if(result.isFinal){
+            finalTranscriptRef.current+=result[0].transcript+" ";
+          }
+          else
+          {
+            interimTranscript+=result[0].transcript;
+          }
         }
+        const fullTranscript=finalTranscriptRef.current+interimTranscript;
+        // setTranscript(full);
         setTranscript(currentTranscript);
         if (transcriptInput.current) {
-          // Add a space if needed
-          if (
-            transcriptInput.current.value &&
-            !transcriptInput.current.value.endsWith(" ")
-          ) {
-            transcriptInput.current.value += " ";
-          }
-          transcriptInput.current.value += currentTranscript;
-          setSavedTranscript(transcriptInput.current.value);
+          // Update the input field only once with the current transcript
+          transcriptInput.current.value = fullTranscript;
         }
+        
         recognition.onend = () => {
           // If we're still in recording mode but recognition stopped, restart it
           if (isRecording) {
@@ -128,6 +138,7 @@ export const UI = ({ hidden }) => {
         setAudioBlob(null);
       }
       setTranscript("");
+      finalTranscriptRef.current = ""; // Add this line here
       if (transcriptInput.current) transcriptInput.current.value = "";
       startRecording();
     }
@@ -169,19 +180,16 @@ export const UI = ({ hidden }) => {
   };
 
   useEffect(() => {
-    // When recording stops and we have a saved transcript
-    if (!isRecording && savedTranscript) {
-      // Wait for UI to update
-      const timer = setTimeout(() => {
-        if (input.current) {
-          input.current.value = savedTranscript;
-          console.log("Set input value to:", savedTranscript); // Debug log
-        }
-      }, 500);
-
-      return () => clearTimeout(timer);
+    if (!isRecording) {
+      // When recording stops, update the saved transcript from state
+      setSavedTranscript(transcript);
+      if (input.current) {
+        input.current.value = finalTranscriptRef.current;
+      }
     }
-  }, [isRecording, savedTranscript]);
+  }, [isRecording, transcript]);
+  
+  
   // Clean up audio resources when component unmounts
   useEffect(() => {
     return () => {
@@ -277,7 +285,7 @@ export const UI = ({ hidden }) => {
         </div>
         {/* Chat input area with improved icons alignment */}
         <div className="flex items-stretch gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
-          {!(isRecording && transcript) && (
+          {!(isRecording) && (
             <input
               className={`w-full p-3 rounded-l-md bg-gray-800 bg-opacity-90 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 isRecording ? "opacity-50" : ""
@@ -296,7 +304,7 @@ export const UI = ({ hidden }) => {
               }}
             />
           )}
-          {isRecording && transcript && (
+          {isRecording && (
             <input
               readOnly={true}
               className={`w-full p-3 rounded-l-md bg-opacity-70 bg-gray-800 backdrop-blur-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 
