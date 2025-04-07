@@ -287,9 +287,12 @@ const finalTranscriptRef = useRef("");
         <div className="flex items-stretch gap-2 pointer-events-auto max-w-screen-sm w-full mx-auto">
           {!(isRecording) && (
             <input
-              className={`w-full p-3 rounded-l-md bg-gray-800 bg-opacity-90 border border-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                isRecording ? "opacity-50" : ""
-              }`}
+              className={`w-full px-4 py-2 rounded-xl bg-white/10 text-white placeholder-gray-400 
+         outline-none ring-0 border-none 
+         hover:shadow-[0_0_10px_2px_rgba(59,130,246,0.5)] 
+         focus:shadow-[0_0_15px_3px_rgba(59,130,246,0.6)] 
+         transition duration-300 ease-in-out 
+         backdrop-blur-sm ${isRecording ? "opacity-50" : ""}`}
               placeholder={
                 isRecording
                   ? "Recording in progress..."
@@ -307,7 +310,7 @@ const finalTranscriptRef = useRef("");
           {isRecording && (
             <input
               readOnly={true}
-              className={`w-full p-3 rounded-l-md bg-opacity-70 bg-gray-800 backdrop-blur-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 
+              className={`w-full p-3 rounded-xl bg-opacity-70 text-white bg-gray-800 backdrop-blur-md border border-none focus:outline-none focus:ring-2 focus:ring-blue-500 
               `}
               // placeholder={
               //   isRecording ? "Recording in progress..." : "Type your message..."
@@ -321,22 +324,18 @@ const finalTranscriptRef = useRef("");
             />
           )}
           {!isRecording && (
-     <button
-       onClick={toggleRecording}
-       disabled={loading || message || processingAudio}
-       className={`flex items-center justify-center px-3 
-         bg-blue-600 hover:bg-blue-500 
-         text-white rounded-md shadow-lg 
-         border border-blue-500 
-         transform hover:scale-105 transition-all duration-200 ${
-         loading || message || processingAudio
-           ? "cursor-not-allowed opacity-50"
-           : ""
-       }`}
-     >
-       {<Mic size={20}/>}
-     </button>
-   )}
+            <button
+              onClick={toggleRecording}
+              disabled={loading || message || processingAudio}
+              className={`bg-blue-600 text-white px-4 py-2 rounded-xl transition duration-300 ease-in-out 
+  hover:bg-blue-700 hover:shadow-[0_0_12px_rgba(59,130,246,0.6)] 
+  focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
+    loading || message || processingAudio ? "cursor-not-allowed opacity-50" : ""
+  }`}
+            >
+              {<Mic size={20} />}
+            </button>
+          )}
           {/* {!audioRecording && isRecording && (
             <button
               onClick={() => {
@@ -348,49 +347,50 @@ const finalTranscriptRef = useRef("");
               <Trash2 size={20} color="white" strokeWidth={2} style={{}} />
             </button>
           )} */}
-           {isRecording && (
-     <button
-       onClick={() => {
-         stopRecording();
-         setAudioDelete(true);
-         setIsRecording(false);
-       }}
-       className={`flex items-center justify-center px-3 
-         bg-red-600 hover:bg-red-500 
-         text-white rounded-md shadow-lg 
+          {isRecording && (
+            <button
+              onClick={() => {
+                stopRecording();
+                setAudioDelete(true);
+                setIsRecording(false);
+              }}
+              className={`flex items-center justify-center px-3 
+         bg-red-600 hover:bg-red-500 hover:shadow-[0_0_12px_rgba(239,68,68,0.6)]
+         text-white rounded-xl shadow-lg 
          border border-red-500 
          transform hover:scale-105 transition-all duration-200`}
-     >
-       <Pause size={20} color="white" strokeWidth={2} style={{}} />
-     </button>
-   )}
+            >
+              <Pause size={20} color="white" strokeWidth={2} style={{}} />
+            </button>
+          )}
 
-{!isRecording && (
-     <button
-       disabled={loading || message || processingAudio}
-       onClick={() => {
-         if (isRecording) {
-           stopRecording();
-         } else sendMessage();
-       }}
-       className={`flex items-center justify-center px-4 ${
-         loading || processingAudio
-           ? "bg-gray-600 border-gray-500"
-           : "bg-blue-600 hover:bg-blue-500 border border-blue-500"
-       } text-white rounded-r-md shadow-lg 
-         transform hover:scale-105 transition-all duration-200 ${
+          {!isRecording && (
+            <button
+              disabled={loading || message || processingAudio}
+              onClick={() => {
+                if (isRecording) {
+                  stopRecording();
+                } else sendMessage();
+              }}
+              className={`flex items-center justify-center px-4 py-3 ${
+                loading || processingAudio
+                  ? "bg-gray-600 border-gray-500"
+                  : "bg-blue-600 hover:bg-blue-500  border-blue-500"
+              } text-white rounded-xl transition duration-300 ease-in-out 
+          hover:bg-blue-700 hover:shadow-[0_0_15px_rgba(59,130,246,0.7)] 
+       focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2 ${
          loading || message || processingAudio
            ? "cursor-not-allowed opacity-50"
            : ""
        }`}
-     >
-       {processingAudio ? (
-         <Loader size={20} className="animate-spin" />
-       ) : (
-         <Send size={20} />
-       )}
-     </button>
-   )}
+            >
+              {processingAudio ? (
+                <Loader size={20} className="animate-spin" />
+              ) : (
+                <Send size={20} />
+              )}
+            </button>
+          )}
         </div>
       </div>
     </>
