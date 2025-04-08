@@ -12,13 +12,76 @@
   height: 100vh;
 }
 
-body {
+/* body {
   margin: 0;
-  background-color: #faaca8;
-  background-image: linear-gradient(19deg, #faaca8 0%, #ddd6f3 100%);
-}
+  background-color: #111827;
+  background:radial-gradient(circle at center, #1f2937 0%, #111827 100%);
+
+ 
+  color: #e0e0e0;
+} */
 
 body.greenScreen {
   background-color: #00ff00;
   background-image: none;
+}
+/*  
+  body {
+  margin: 0;
+  min-height: 100vh;
+  background: radial-gradient(circle at 80% 70%, rgba(128, 0, 255, 0.1), transparent 40%),
+              radial-gradient(circle at 20% 30%, rgba(0, 255, 255, 0.1), transparent 40%),
+              linear-gradient(120deg, #0b0c1b 0%, #140924 100%);
+  background-repeat: no-repeat;
+  background-size: cover;
+  overflow: hidden;
+  position: relative;
+} 
+  */
+
+/* body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: repeating-linear-gradient(
+    0deg,
+    rgba(255, 255, 255, 0.015) 0px,
+    rgba(255, 255, 255, 0.015) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  opacity: 0.25;
+  pointer-events: none;
+  z-index: 0;
+}  
+ */
+
+
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: 'Segoe UI', sans-serif;
+  background: radial-gradient(circle at 30% 30%, #6a00ff33, transparent 50%),
+              radial-gradient(circle at 70% 70%, #00ffff33, transparent 50%),
+              linear-gradient(120deg, #0b0c1b 0%, #140924 100%);
+  background-size: 200% 200%;
+  animation: backgroundGlow 10s ease-in-out infinite;
+  overflow: hidden;
+}
+
+
+@keyframes backgroundGlow {
+  0% {
+    background-position: 30% 30%, 70% 70%, center;
+  }
+  50% {
+    background-position: 33% 33%, 67% 67%, center;
+  }
+  100% {
+    background-position: 30% 30%, 70% 70%, center;
+  }
 }
